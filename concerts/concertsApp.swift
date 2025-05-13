@@ -9,9 +9,12 @@ import SwiftUI
 
 @main
 struct concertsApp: App {
+    @StateObject private var library = Library()
+    
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .environmentObject(library)
         }
     }
 }
