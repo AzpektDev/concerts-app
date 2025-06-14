@@ -9,34 +9,48 @@ import Foundation
 
 struct APIService {
     private let apiKey: String
-    
+    private let isoFormatter: ISO8601DateFormatter = {
+        let f = ISO8601DateFormatter()
+        f.formatOptions = [.withInternetDateTime]
+        return f
+    }()
+
     init() {
         apiKey = Bundle.main.infoDictionary?["TM_API_KEY"] as? String ?? ""
     }
-    
+
     func events(keyword: String? = nil,
                 city: String? = nil,
-                maxPrice: Double? = nil) async throws -> [Concert] {
+                maxPrice: Double? = nil,
+                countryCode: String = "PL") async throws -> [Concert]
+        {
         var comps = URLComponents(string: "https://app.ticketmaster.com/discovery/v2/events.json")!
         var query: [URLQueryItem] = [
-            .init(name: "apikey", value: apiKey),
-            .init(name: "size",   value: "50"),
-            .init(name: "sort",   value: "date,asc")
+            .init(name: "apikey",         value: apiKey),
+            .init(name: "size",           value: "50"),
+            .init(name: "sort",           value: "date,asc"),
+            .init(name: "countryCode",    value: countryCode),
+            .init(name: "startDateTime",  value: isoFormatter.string(from: Date()))
         ]
+
         if let keyword { query.append(.init(name: "keyword", value: keyword)) }
         if let city    { query.append(.init(name: "city",    value: city)) }
         if let maxPrice {
             query.append(.init(name: "priceMax", value: String(Int(maxPrice))))
         }
         comps.queryItems = query
-        
-        print(apiKey)
-        
+
         let (data, _) = try await URLSession.shared.data(from: comps.url!)
         let decoded   = try JSONDecoder().decode(TMResponse.self, from: data)
-        return decoded.embedded?.events.map(\.asConcert) ?? []
+
+            return (decoded.embedded?.events.map(\.asConcert) ?? [])
+                .filter { ($0.date ?? .distantPast) >= Date() }
+                .sorted {
+                    ($0.date ?? .distantFuture) < ($1.date ?? .distantFuture)
+                }
     }
 }
+
 
 private struct TMResponse: Decodable {
     let embedded: Embedded?
