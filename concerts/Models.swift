@@ -7,33 +7,27 @@
 
 import Foundation
 
-struct Artist: Identifiable, Hashable {
-    let id = UUID()
-    let name: String
-    let imageName: String      // local asset for demo
-}
-
 struct Concert: Identifiable, Hashable {
-    let id = UUID()
-    let artist: Artist
+    let id: String
+    let artist: String
     let venue: String
-    let date: Date
-    let price: Double          // cheapest tier
-    var isSaved: Bool = false
+    let date: Date?
+    let price: Double?
+    let imageURL: URL?
 }
 
-// Observable store for "my concerts"
-final class Library: ObservableObject {
-    @Published var saved: [Concert] = []
 
+final class Library: ObservableObject {
+    @Published private(set) var saved: [Concert] = []
+    
     func toggle(_ concert: Concert) {
-        if let index = saved.firstIndex(of: concert) {
-            saved.remove(at: index)
+        if let idx = saved.firstIndex(of: concert) {
+            saved.remove(at: idx)
         } else {
             saved.append(concert)
         }
     }
-
+    
     func contains(_ concert: Concert) -> Bool {
         saved.contains(concert)
     }

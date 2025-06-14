@@ -10,34 +10,43 @@ import SwiftUI
 struct ConcertDetailView: View {
     @EnvironmentObject private var library: Library
     let concert: Concert
-
+    
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
-                Image(concert.artist.imageName)
-                    .resizable()
-                    .scaledToFill()
-                    .frame(height: 260)
-                    .clipped()
-
+                AsyncImage(url: concert.imageURL) { phase in
+                    switch phase {
+                    case .success(let img): img
+                            .resizable()
+                            .scaledToFill()
+                    default: Color.gray.opacity(0.3)
+                }
+                }
+                .frame(height: 260)
+                .clipped()
+                
                 VStack(alignment: .leading, spacing: 8) {
-                    Text(concert.artist.name)
+                    Text(concert.artist)
                         .font(.largeTitle.bold())
-
+                    
                     Text(concert.venue)
                         .font(.title3)
                         .foregroundStyle(.secondary)
-
-                    Text(concert.date.formatted(date: .abbreviated, time: .shortened))
-                        .font(.headline)
-
-                    Text(String(format: "From %.0f PLN", concert.price))
-                        .font(.headline)
-                        .padding(.top, 4)
-
+                    
+                    if let date = concert.date {
+                        Text(date.formatted(date: .abbreviated, time: .shortened))
+                            .font(.headline)
+                    }
+                    
+                    if let price = concert.price {
+                        Text(String(format: "From %.0f %@", price, "PLN"))
+                            .font(.headline)
+                            .padding(.top, 4)
+                    }
+                    
                     Divider()
-
-                    Text(loremIpsum)
+                    
+                    Text("No additional description provided by the API.")
                         .font(.body)
                 }
                 .padding()
@@ -45,19 +54,13 @@ struct ConcertDetailView: View {
         }
         .ignoresSafeArea(edges: .top)
         .toolbar {
-            Button {
-                library.toggle(concert)
-            } label: {
+            Button { library.toggle(concert) } label: {
                 Label("Save", systemImage: library.contains(concert) ? "bookmark.fill" : "bookmark")
             }
         }
-        .navigationTitle(concert.artist.name)
+        .navigationTitle(concert.artist)
         .navigationBarTitleDisplayMode(.inline)
-    }
-
-    private var loremIpsum: String {
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec sit amet commodo quam. Phasellus facilisis sed elit quis commodo. In hac habitasse platea dictumst."
     }
 }
 
-#Preview { ConcertDetailView(concert: sampleConcerts[0]).environmentObject(Library()) }
+//#Preview { ConcertDetailView(concert: sampleConcerts[0]).environmentObject(Library()) }

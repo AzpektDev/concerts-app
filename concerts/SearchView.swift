@@ -9,22 +9,29 @@ import SwiftUI
 
 struct SearchView: View {
     @State private var query = ""
-    private var results: [Concert] {
-        if query.isEmpty { return sampleConcerts }
-        return sampleConcerts.filter {
-            $0.artist.name.lowercased().contains(query.lowercased()) ||
-            $0.venue.lowercased().contains(query.lowercased())
-        }
-    }
-
+    @EnvironmentObject private var store: ConcertStore
+    
     var body: some View {
         NavigationStack {
-            List(results) { concert in
-                NavigationLink(value: concert) {
-                    ConcertRow(concert: concert)
+            Group {
+                if store.isLoading {
+                    ProgressView("Searching…")
+                } else if store.concerts.isEmpty {
+                    ContentUnavailableView("No results",
+                                           systemImage: "magnifyingglass",
+                                           description: Text("Try a different search term."))
+                } else {
+                    List(store.concerts) { concert in
+                        NavigationLink(value: concert) {
+                            ConcertRow(concert: concert)
+                        }
+                    }
                 }
             }
             .searchable(text: $query, prompt: "Artist, venue…")
+            .onSubmit(of: .search) {
+                Task { await store.search(keyword: query) }
+            }
             .navigationTitle("Search")
             .navigationDestination(for: Concert.self) { ConcertDetailView(concert: $0) }
         }

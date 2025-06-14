@@ -8,26 +8,32 @@
 import SwiftUI
 
 struct ArtistDetailView: View {
-    let artist: Artist
-
+//    let name: String
+//    let imageURL: URL?
+    
     var body: some View {
-        List {
-            Image(artist.imageName)
-                .resizable()
-                .scaledToFill()
-                .frame(height: 240)
-                .clipped()
-                .listRowInsets(EdgeInsets())
-
-            Text(lorem)
-        }
-        .navigationTitle(artist.name)
-        .navigationBarTitleDisplayMode(.inline)
-    }
-
-    private var lorem: String {
-        "Suspendisse potenti. Sed laoreet, tortor quis dignissim bibendum, ex justo viverra magna, vitae tempus lorem erat quis elit."
+//        List {
+//            AsyncImage(url: imageURL) { phase in
+//                switch phase {
+//                case .success(let img): img
+//                        .resizable()
+//                        .scaledToFill()
+//                default: Color.gray.opacity(0.3)
+//                }
+//            }
+//            .frame(height: 240)
+//            .clipped()
+//            .listRowInsets(.init())
+//            
+//            Text("fuck tickermaster")
+//        }
+//        .navigationTitle(name)
+//        .navigationBarTitleDisplayMode(.inline)
+        
+        
+        Text("fuck tickermaster")
     }
 }
 
-#Preview { ArtistDetailView(artist: sampleArtists[0]) }
+//#Preview { ArtistDetailView(artist: sampleArtists[0]) }
+
