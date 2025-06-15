@@ -14,14 +14,16 @@ struct ConcertDetailView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
+                
                 AsyncImage(url: concert.imageURL) { phase in
                     switch phase {
                     case .success(let img): img
                             .resizable()
                             .scaledToFill()
                     default: Color.gray.opacity(0.3)
+                    }
                 }
-                }
+                .frame(maxWidth: .infinity)
                 .frame(height: 260)
                 .clipped()
                 
@@ -46,13 +48,13 @@ struct ConcertDetailView: View {
                     
                     Divider()
                     
-                    Text("No additional description provided by the API.")
-                        .font(.body)
+//                    Text("no desc")
+//                        .font(.body)
                 }
                 .padding()
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
         }
-        .ignoresSafeArea(edges: .top)
         .toolbar {
             Button { library.toggle(concert) } label: {
                 Label("Save", systemImage: library.contains(concert) ? "bookmark.fill" : "bookmark")
@@ -62,5 +64,6 @@ struct ConcertDetailView: View {
         .navigationBarTitleDisplayMode(.inline)
     }
 }
+
 
 //#Preview { ConcertDetailView(concert: sampleConcerts[0]).environmentObject(Library()) }
